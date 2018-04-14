@@ -1,6 +1,19 @@
 using namespace std;
 
-void basicFileProcess(const string &origin, const string &dest1, const string &dest2)
+//判断该行数据是否属于测试集，用于交叉验证
+//total为(训练集+测试集)总行数，lineNum为判断行，fold为fold折交叉验证，no为第no次交叉验证
+bool judgeTest(int total, int lineNum, int fold, int no)
+{
+    int testSize = total / fold;
+    if((lineNum > testSize * (no - 1)) && (lineNum <= testSize * no))
+        return true;
+    else
+        return false;
+}
+
+//从作业二的语料前10000行中获取8:2的训练集和测试集
+//origin、dest1和dest2、分别为原始语料、训练集和测试集，fold为fold折交叉验证
+void basicFileProcess(const string &origin, const string &dest1, const string &dest2, const int fold)
 {
 	ifstream input(origin);
 	ofstream output1(dest1, ofstream::app);
@@ -10,19 +23,20 @@ void basicFileProcess(const string &origin, const string &dest1, const string &d
     for(int i = 0; i < 10000; ++i)
     {
     	getline(input, line);
-    	if(i < 8000)
+    	if(judgeTest(10000, i + 1, fold, 2))  //**注意根据1~fold修改no**
+    	{
+    	    output2 << line;
+    		output2 << endl;
+    	}
+    	else
     	{
     		output1 << line;
     		output1 << endl;
     	}
-    	else
-    	{
-    		output2 << line;
-    		output2 << endl;
-    	}
     }
 }
 
+//处理C++中文字符串分割为字符乱码问题
 void splitChinese(const string &word, vector<string> &characters)
 {
     int num = word.size();
@@ -73,6 +87,7 @@ void splitChinese(const string &word, vector<string> &characters)
      }
 }
 
+//将语料处理为CRF++标准格式
 void format(const string &origin, const string &dest)
 {
     ifstream input(origin);
@@ -132,6 +147,7 @@ void format(const string &origin, const string &dest)
     }
 }
 
+//根据标注结果文件计算准确率、召回率以及F-score
 void calculate(const string &output)
 {
     double precision;
@@ -177,7 +193,7 @@ void calculate(const string &output)
     
     cout << "precision = " << precision << endl;
     cout << "recall = " << recall << endl;
-    cout << "f1 = " << f1 << endl;
+    cout << "F-score = " << f1 << endl;
     
     cout << "人名正确预测数：" << tp << endl;
     cout << "预测为人名数：" << p << endl;

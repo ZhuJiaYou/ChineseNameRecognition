@@ -8,8 +8,12 @@
 
 int main()
 {
-	//basicFileProcess("trainingData.txt", "rawTrain", "rawTest");
+	//basicFileProcess("trainingData.txt", "rawTrain", "rawTest", 5);
+	//format("rawTrain", "trainData");
+	//format("rawTest", "testData");
 	
-	calculate("output");
+	calculate("outputData");
+	
+	
 	return 0;
 }
